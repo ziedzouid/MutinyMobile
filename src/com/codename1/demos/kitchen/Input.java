@@ -115,18 +115,17 @@ public class Input extends Demo {
 
     @Override
     public Container createDemo(Form parent) {
-        name = new TextField("", "Name", 20, TextField.ANY);
+        name = new TextField("", "Name");
         FontImage.setMaterialIcon(name.getHintLabel(), FontImage.MATERIAL_PERSON);
-        FontImage.setMaterialIcon(name.getHintLabel(), FontImage.MATERIAL_PERSON);
-        lastname = new TextField("", "LastName", 20, TextField.ANY);
+        lastname = new TextField("", "LastName");
         FontImage.setMaterialIcon(lastname.getHintLabel(), FontImage.MATERIAL_PERSON);
-        email = new TextField("", "E-mail", 20, TextField.EMAILADDR);
+        email = new TextField("", "E-mail");
         FontImage.setMaterialIcon(email.getHintLabel(), FontImage.MATERIAL_EMAIL);
-        password = new TextField("", "Password", 20, TextField.PASSWORD);
+        password = new TextField("", "Password");
         FontImage.setMaterialIcon(password.getHintLabel(), FontImage.MATERIAL_LOCK);
-        passwordconfirm = new TextField("", "PasswordConf", 20, TextField.PASSWORD);
+        passwordconfirm = new TextField("", "PasswordConf");
         FontImage.setMaterialIcon(passwordconfirm.getHintLabel(), FontImage.MATERIAL_LOCK);
-        phonenumber = new TextField("", "PhoneNumber", 20, TextField.PASSWORD);
+        phonenumber = new TextField("", "PhoneNumber");
         FontImage.setMaterialIcon(phonenumber.getHintLabel(), FontImage.MATERIAL_PHONE);
         TextField bio = new TextField("", "Bio", 2, 20);
         FontImage.setMaterialIcon(bio.getHintLabel(), FontImage.MATERIAL_LIBRARY_BOOKS);
@@ -172,8 +171,8 @@ public class Input extends Demo {
         content.add(BorderLayout.SOUTH, save);
         UserDAO userDAO = new UserDAO();
 
-        save.addActionListener(e -> {
-            ToastBar.showMessage("Save pressed...", FontImage.MATERIAL_INFO);
+        save.addActionListener(e -> {            
+           
             userDAO.RegisterUser();
         });
 

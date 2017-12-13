@@ -71,6 +71,7 @@ public class KitchenSink {
     static int[] colors;
     static Image[] colorBottoms;
     static int currentColor;
+    UserDAO userDAO = new UserDAO();
 
     public void init(Object context) {
         // use 2 network threads for slightly faster networking but not too much to overburden the UI
@@ -223,43 +224,9 @@ public class KitchenSink {
         }
 
         showSplashAnimation();
-        /*  Form hi = new Form("Hi World");
-        hi.setLayout(new BoxLayout(BoxLayout.Y_AXIS));
-        hi.addComponent(new Label("Hi World"));
-        Button b = new Button("Browse Files");
-        b.addActionListener(e -> {
-            if (FileChooser.isAvailable()) {
-                FileChooser.showOpenDialog(".png , .jpg", e2 -> {
-                    String file = (String) e2.getSource();
-                    System.out.println(file);
-                    String imageFile = FileSystemStorage.getInstance().getAppHomePath();
-                    System.out.println(imageFile);
-                    if (file == null) {
-                        hi.add("No file was selected");
-                        hi.revalidate();
-                    } else {
-                        String extension = null;
-                        if (file.lastIndexOf(".") > 0) {
-                            extension = file.substring(file.lastIndexOf(".") + 1);
-                        }
-                        if ("txt".equals(extension)) {
-                            FileSystemStorage fs = FileSystemStorage.getInstance();
-                            try {
-                                InputStream fis = fs.openInputStream(file);
-                                hi.addComponent(new SpanLabel(Util.readToString(fis)));
-                            } catch (Exception ex) {
-                                Log.e(ex);
-                            }
-                        } else {
-                            hi.add("Selected file " + file);
-                        }
-                    }
-                    hi.revalidate();
-                });
-            }
-        });
-        hi.addComponent(b);
-        hi.show();*/
+        userDAO.getListUsers();
+        System.out.println(UserDAO.users);
+
     }
 
     void showMainUI() {

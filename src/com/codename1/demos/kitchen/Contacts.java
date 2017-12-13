@@ -53,18 +53,22 @@ import com.codename1.ui.layouts.GridLayout;
 import com.codename1.ui.table.TableLayout;
 import com.codename1.util.CaseInsensitiveOrder;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 /**
- * A list of contacts is a very common use case for developers, we tried to make this list as realistic as 
- * possible allowing you to dial, email, share and even delete contacts. Notice that some platforms might 
- * not support contacts access (e.g. JavaScript) in which case we fallback to fake contacts.
+ * A list of contacts is a very common use case for developers, we tried to make
+ * this list as realistic as possible allowing you to dial, email, share and
+ * even delete contacts. Notice that some platforms might not support contacts
+ * access (e.g. JavaScript) in which case we fallback to fake contacts.
  *
  * @author Shai Almog
  */
-public class Contacts extends Demo {    
+public class Contacts extends Demo {
+
     private HashMap<String, Image> letterCache = new HashMap<>();
     private Image circleLineImage;
     private Object circleMask;
@@ -74,7 +78,8 @@ public class Contacts extends Demo {
     private boolean finishedLoading;
     private long lastScroll;
     private boolean messageShown;
-    
+    int k = 0;
+
     public String getDisplayName() {
         return "Friends";
     }
@@ -95,15 +100,14 @@ public class Contacts extends Demo {
                 + "JavaScript) in which case we fallback to fake contacts.";
     }
 
-    
     public Image getLetter(char c, Component cmp) {
         c = Character.toUpperCase(c);
         String cstr = "" + c;
         Image i = letterCache.get(cstr);
-        if(i != null) {
+        if (i != null) {
             return i;
         }
-         
+
         int off = (c - 'A') % 7 + 1;
         int color = cmp.getUIManager().getComponentStyle("Blank" + off).getBgColor();
         Image img = Image.createImage(circleMaskWidth, circleMaskHeight, 0);
@@ -118,105 +122,153 @@ public class Contacts extends Demo {
         letterCache.put(cstr, img);
         return img;
     }
-    
+
     private String notNullOrEmpty(String... s) {
         StringBuilder b = new StringBuilder();
-        for(String ss : s) {
-            if(ss == null || ss.length() == 0) {
+        for (String ss : s) {
+            if (ss == null || ss.length() == 0) {
                 return "";
             }
             b.append(ss);
         }
         return b.toString();
     }
-    
+
     Contact[] got() {
-        String[] characters = { "Tyrion Lannister", "Jaime Lannister", "Cersei Lannister", "Daenerys Targaryen",
-            "Jon Snow", "Petyr Baelish", "Jorah Mormont", "Sansa Stark", "Arya Stark", "Theon Greyjoy",
-            "Bran Stark", "Sandor Clegane", "Joffrey Baratheon", "Catelyn Stark", "Robb Stark", "Ned Stark",
-            "Robert Baratheon", "Viserys Targaryen", "Varys", "Samwell Tarly", "Bronn","Tywin Lannister",
-            "Shae", "Jeor Mormont","Gendry","Tommen Baratheon","Jaqen H'ghar","Khal Drogo","Davos Seaworth", 
-            "Melisandre","Margaery Tyrell","Stannis Baratheon","Ygritte","Talisa Stark","Brienne of Tarth","Gilly",
-            "Roose Bolton","Tormund Giantsbane","Ramsay Bolton","Daario Naharis","Missandei","Ellaria Sand",
-            "The High Sparrow","Grand Maester Pycelle","Loras Tyrell","Hodor","Gregor Clegane","Meryn Trant",
-            "Alliser Thorne","Othell Yarwyck","Kevan Lannister","Lancel Lannister","Myrcella Baratheon",
-            "Rickon Stark","Osha","Janos Slynt","Barristan Selmy","Maester Aemon","Grenn","Hot Pie",
-            "Pypar","Rast","Ros","Rodrik Cassel","Maester Luwin","Irri","Doreah","Eddison Tollett","Podrick Payne",
-            "Yara Greyjoy","Selyse Baratheon","Olenna Tyrell","Qyburn","Grey Worm","Meera Reed","Shireen Baratheon",
-            "Jojen Reed","Mace Tyrell","Olly","The Waif","Bowen Marsh"
-        };
-        Contact[] ct = new Contact[characters.length];
-        for(int iter = 0 ; iter < characters.length ; iter++) {
-            ct[iter] = new Contact();
-            ct[iter].setDisplayName(characters[iter]);
+        CaseInsensitiveOrder co = new CaseInsensitiveOrder();
+        Collections.sort(UserDAO.users, (o1, o2) -> {
+            String sname1 = o1.nom;
+            String sname2 = o2.nom;
+            if (sname1 == null) {
+                sname1 = o1.prenom;
+                if (sname1 == null) {
+                    sname1 = "";
+                }
+            }
+            if (sname2 == null) {
+                sname2 = o2.prenom;
+                if (sname2 == null) {
+                    sname2 = "";
+                }
+            }
+            return co.compare(sname1, sname2);
+        });
+        String[] usernames = new String[20];
+        String[] mailss = new String[20];
+        Hashtable<Integer, String> mails = new Hashtable<>();
+
+        int i = 0;
+        System.out.println("test from friends");
+        System.out.println(UserDAO.users);
+        for (User user : UserDAO.users) {
+            String username = user.nom + " " + user.prenom;
+            usernames[i] = username;
+            mailss[i] = user.email;
+            i++;
         }
+
+        Contact[] ct = new Contact[i];
+        int j = 0;
+        for (User user : UserDAO.users) {
+            ct[j] = new Contact();
+            ct[j].setDisplayName(user.nom + " " + user.prenom);
+            /*mails.put(j, user.email); 
+            ct[j].setEmails(mails);
+            mails.clear();*/
+            j++;
+        }
+
+
+        /*for (int iter = 0; iter < usernames.length; iter++) {
+            ct[iter] = new Contact();
+            ct[iter].setDisplayName("test");  
+
+          
+        }*/
         return ct;
     }
-    
+
     Contact[] getContacts() {
         try {
             return Display.getInstance().getAllContacts(true, true, false, true, true, false);
-        } catch(Throwable t) {
+        } catch (Throwable t) {
             return null;
         }
     }
-    
+
     public Container createDemo(Form parentForm) {
         Image circleImage = getResources().getImage("circle.png");
         circleLineImage = getResources().getImage("circle-line.png");
 
         parentForm.addPointerDraggedListener(e -> lastScroll = System.currentTimeMillis());
         parentForm.addShowListener(e -> {
-            if(!messageShown){
-                messageShown = true;               
-                ToastBar.showMessage("Swipe the contacts to both sides to expose additional options", FontImage.MATERIAL_COMPARE_ARROWS, 2000);        
+            if (!messageShown) {
+                messageShown = true;
+                ToastBar.showMessage("Swipe the contacts to both sides to expose additional options", FontImage.MATERIAL_COMPARE_ARROWS, 2000);
             }
         });
-        
+
         circleMask = circleImage.createMask();
         circleMaskWidth = circleImage.getWidth();
         circleMaskHeight = circleImage.getHeight();
         letterFont = Font.createTrueTypeFont("native:MainThin", "native:MainThin");
-        letterFont = letterFont.derive(circleMaskHeight - circleMaskHeight/ 3, Font.STYLE_PLAIN);
-        
-        final Container contactsDemo = new Container(BoxLayout.y());        
+        letterFont = letterFont.derive(circleMaskHeight - circleMaskHeight / 3, Font.STYLE_PLAIN);
+
+        final Container contactsDemo = new Container(BoxLayout.y());
         contactsDemo.setScrollableY(true);
         contactsDemo.add(FlowLayout.encloseCenterMiddle(new InfiniteProgress()));
-                      
+
         Display.getInstance().scheduleBackgroundTask(() -> {
-            Contact[] tcontacts = getContacts();
-            if(tcontacts == null) {
+            Contact[] tcontacts = got();
+            if (tcontacts == null) {
                 tcontacts = got();
+            }
+
+            int i = 0;
+            String[] mailss = new String[20];
+
+            for (User user : UserDAO.users) {
+                mailss[i] = user.email;
+                i++;
             }
             Contact[] contacts = tcontacts;
             CaseInsensitiveOrder co = new CaseInsensitiveOrder();
-            Arrays.sort(contacts, (o1, o2) -> {
-                String sname1  = o1.getFamilyName();
-                String sname2  = o2.getFamilyName();
-                if(sname1 == null) {
+
+          /*  Arrays.sort(contacts, (o1, o2) -> {
+                String sname1 = o1.getFamilyName();
+                String sname2 = o2.getFamilyName();
+                if (sname1 == null) {
                     sname1 = o1.getDisplayName();
-                    if(sname1 == null) {
+                    if (sname1 == null) {
                         sname1 = "";
                     }
                 }
-                if(sname2 == null) {
+                if (sname2 == null) {
                     sname2 = o2.getDisplayName();
-                    if(sname2 == null) {
+                    if (sname2 == null) {
                         sname2 = "";
                     }
                 }
                 return co.compare(sname1, sname2);
-            });
+            });*/
+
             Display.getInstance().callSerially(() -> {
                 contactsDemo.removeAll();
-                for(Contact c : contacts) {
+                k = 0;
+                for (Contact c : contacts) {
+
                     String dname = c.getDisplayName();
-                    if(dname == null || dname.length() == 0) {
+                    String dmail = UserDAO.users.get(k).email;
+                    int phone = UserDAO.users.get(k).tel;
+                    String dphone = Integer.toString(phone);
+                    String drole = UserDAO.users.get(k).role;
+                    k++;
+                    if (dname == null || dname.length() == 0) {
                         continue;
                     }
                     MultiButton mb = new MultiButton(dname);
                     mb.setIconUIID("ContactIcon");
-                    
+
                     // we need this for the SwipableContainer below
                     mb.getAllStyles().setBgTransparency(255);
                     mb.setTextLine2(c.getNote());
@@ -224,62 +276,66 @@ public class Contacts extends Demo {
                     Button delete = new Button();
                     delete.setUIID("SwipeableContainerButton");
                     FontImage.setMaterialIcon(delete, FontImage.MATERIAL_DELETE, 8);
-                    
+
                     Button info = new Button();
                     info.setUIID("SwipeableContainerInfoButton");
                     FontImage.setMaterialIcon(info, FontImage.MATERIAL_INFO, 8);
+
                     info.addActionListener(e -> {
                         Dialog dlg = new Dialog(dname);
                         TableLayout tl = new TableLayout(3, 2);
                         dlg.setLayout(tl);
-                        Map emailHash = c.getEmails();
+                        // Map emailHash = c.getEmails();
                         Container emails;
-                        if(emailHash != null && emailHash.size() > 0) {
-                            Button[] emailArr = new Button[emailHash.size()];
-                            int off = 0;
-                            for(Object ee : emailHash.values()) {
-                                emailArr[off] = new Button((String)ee);
-                                FontImage.setMaterialIcon(emailArr[off], FontImage.MATERIAL_EMAIL);
-                                emailArr[off].addActionListener(ev -> {
-                                    dlg.dispose();
-                                    Message m = new Message("");
-                                    Display.getInstance().sendMessage(new String[] {(String)ee}, "Sent from Codename One!", m);
-                                });
-                                off ++;
-                            }
-                            emails = BoxLayout.encloseY(emailArr);
-                        } else {
-                            emails = new Container(BoxLayout.y());
-                        }
+                        // if (mailss != null && mailss.length > 0) {
+                        Button emailArr = new Button();
+                        int off = 0;
+                        System.out.println(k);
+                        //  for (String ee : mailss) {
+                        // String mail = UserDAO.users.get(k).email;
+                        //k++;
+                        emailArr = new Button(dmail);
+                        FontImage.setMaterialIcon(emailArr, FontImage.MATERIAL_EMAIL);
+                        emailArr.addActionListener(ev -> {
+                            dlg.dispose();
+                            Message m = new Message("");
+                            Display.getInstance().sendMessage(new String[]{(String) dmail}, "Sent from Codename One!", m);
+                        });
+                        off++;
 
-                        Map phonesHash = c.getPhoneNumbers();
+                        // }
+                        emails = BoxLayout.encloseY(emailArr);
+                        // } else {
+                        //emails = new Container(BoxLayout.y());
+                        //}
+
+                        // Map phonesHash = c.getPhoneNumbers();
                         Container phones;
-                        if(phonesHash != null && phonesHash.size() > 0) {
-                            Button[] phoneArr = new Button[phonesHash.size()];
-                            int off = 0;
-                            for(Object ee : phonesHash.values()) {
-                                phoneArr[off] = new Button((String)ee);
-                                FontImage.setMaterialIcon(phoneArr[off], FontImage.MATERIAL_PHONE);
-                                phoneArr[off].addActionListener(ev -> {
-                                    dlg.dispose();
-                                    Display.getInstance().dial((String)ee);
-                                });
-                                off ++;
-                            }
-                            phones = BoxLayout.encloseY(phoneArr);
-                        } else {
-                            phones = new Container(BoxLayout.y());
-                        }
-                        
-                        
-                        dlg.add("Phones").add(phones).
-                                add("Emails").add(emails);
-                        
-                        if(c.getBirthday() == 0) {
-                            dlg.add("Birthday").add("---");
-                        } else {
-                            dlg.add("Birthday").add(L10NManager.getInstance().formatDateShortStyle(new Date(c.getBirthday())));
-                        }
+                        //if (phonesHash != null && phonesHash.size() > 0) {
+                        Button phoneArr = new Button();
+                        //int off = 0;
+                        // for (Object ee : phonesHash.values()) {
+                        phoneArr = new Button(dphone);
+                        FontImage.setMaterialIcon(phoneArr, FontImage.MATERIAL_PHONE);
+                        phoneArr.addActionListener(ev -> {
+                            dlg.dispose();
+                            Display.getInstance().dial((String) dphone);
+                        });
+                        off++;
+                        // }
+                        phones = BoxLayout.encloseY(phoneArr);
+                        // } else {
+                        // phones = new Container(BoxLayout.y());
+                        // }
+
+                        dlg.add("Phone").add(phones).
+                                add("Email").add(emails);
+
+                        // if (c.getBirthday() == 0) {
+                        //dlg.add("Birthday").add("---");
+                        // } else {
+                        dlg.add("Post").add(drole);
+                        // }
                         dlg.setDisposeWhenPointerOutOfBounds(true);
                         dlg.setBackCommand(new Command(""));
                         dlg.showPacked(BorderLayout.SOUTH, true);
@@ -289,8 +345,8 @@ public class Contacts extends Demo {
                     share.setUIID("SwipeableContainerShareButton");
                     FontImage.setMaterialIcon(share, FontImage.MATERIAL_SHARE, 8);
                     share.setText("");
-                    share.setTextToShare(dname + notNullOrEmpty(" phone: ", c.getPrimaryPhoneNumber()) + 
-                            notNullOrEmpty(" email: ", c.getPrimaryEmail()));
+                    share.setTextToShare(dname + notNullOrEmpty(" phone: ", c.getPrimaryPhoneNumber())
+                            + notNullOrEmpty(" email: ", c.getPrimaryEmail()));
 
                     Button call = new Button();
                     call.setUIID("SwipeableContainerInfoButton");
@@ -298,38 +354,38 @@ public class Contacts extends Demo {
                     call.addActionListener(e -> Display.getInstance().dial(c.getPrimaryPhoneNumber()));
 
                     Container options;
-                    if(c.getPrimaryEmail() != null && c.getPrimaryEmail().length() > 0) {
+                    if (c.getPrimaryEmail() != null && c.getPrimaryEmail().length() > 0) {
                         Button email = new Button();
                         email.setUIID("SwipeableContainerInfoButton");
                         FontImage.setMaterialIcon(email, FontImage.MATERIAL_EMAIL, 8);
                         email.addActionListener(e -> {
                             Message m = new Message("");
-                            Display.getInstance().sendMessage(new String[] {c.getPrimaryEmail()}, "Sent from Codename One!", m);
+                            Display.getInstance().sendMessage(new String[]{c.getPrimaryEmail()}, "Sent from Codename One!", m);
                         });
                         options = GridLayout.encloseIn(4, call, email, info, share);
-                    }  else {
+                    } else {
                         options = GridLayout.encloseIn(3, call, info, share);
                     }
-                    
-                    
+
                     SwipeableContainer sc = new SwipeableContainer(
-                            options, 
-                            GridLayout.encloseIn(1, delete), 
+                            options,
+                            GridLayout.encloseIn(1, delete),
                             mb);
                     contactsDemo.add(sc);
                     sc.addSwipeOpenListener(e -> {
                         // auto fold the swipe when we go back to scrolling
                         contactsDemo.addScrollListener(new ScrollListener() {
                             int initial = -1;
+
                             @Override
                             public void scrollChanged(int scrollX, int scrollY, int oldscrollX, int oldscrollY) {
                                 // scrolling is very sensitive on devices...
-                                if(initial < 0) {
+                                if (initial < 0) {
                                     initial = scrollY;
                                 }
                                 lastScroll = System.currentTimeMillis();
-                                if(Math.abs(scrollY - initial) > mb.getHeight() / 2) {
-                                    if(sc.getParent() != null) {
+                                if (Math.abs(scrollY - initial) > mb.getHeight() / 2) {
+                                    if (sc.getParent() != null) {
                                         sc.close();
                                     }
                                     contactsDemo.removeScrollListener(this);
@@ -337,11 +393,11 @@ public class Contacts extends Demo {
                             }
                         });
                     });
-                                        
+
                     delete.addActionListener(e -> {
-                        if(Dialog.show("Delete", "Are you sure?\nThis will delete this contact permanently!", "Delete", "Cancel")) {
+                        if (Dialog.show("Delete", "Are you sure?\nThis will delete this contact permanently!", "Delete", "Cancel")) {
                             // can happen in the case of got() contacts
-                            if(c.getId() != null) {
+                            if (c.getId() != null) {
                                 Display.getInstance().deleteContact(c.getId());
                             }
                             sc.remove();
@@ -350,27 +406,27 @@ public class Contacts extends Demo {
                     });
 
                     // can happen in the case of got() contacts
-                    if(c.getId() != null)  {
+                    if (c.getId() != null) {
                         Display.getInstance().scheduleBackgroundTask(() -> {
                             // let the UI finish loading first before we proceed with the images
-                            while(!finishedLoading) {
+                            while (!finishedLoading) {
                                 Util.sleep(100);
                             }
 
                             int scrollY = contactsDemo.getScrollY();
-                            
+
                             // don't do anything while we are scrolling or animating
                             long idle = System.currentTimeMillis() - lastScroll;
-                            while(idle < 1500 || contactsDemo.getAnimationManager().isAnimating() || scrollY != contactsDemo.getScrollY()) {
+                            while (idle < 1500 || contactsDemo.getAnimationManager().isAnimating() || scrollY != contactsDemo.getScrollY()) {
                                 scrollY = contactsDemo.getScrollY();
-                                Util.sleep(Math.min(1500, Math.max(100, 2000 - ((int)idle))));
+                                Util.sleep(Math.min(1500, Math.max(100, 2000 - ((int) idle))));
                                 idle = System.currentTimeMillis() - lastScroll;
                             }
 
                             // fetch only the picture which is the last missing piece
                             Contact picContact = Display.getInstance().getContactById(c.getId(), false, true, false, false, false);
                             Image img = picContact.getPhoto();
-                            if(img != null) {
+                            if (img != null) {
                                 // UI/Image manipulation must be done on the EDT
                                 Display.getInstance().callSerially(() -> {
                                     Image rounded = img.fill(circleMaskWidth, circleMaskHeight).applyMask(circleMask);
@@ -383,12 +439,13 @@ public class Contacts extends Demo {
 
                                 // yield slightly so we don't choke the EDT while a user might be scrolling...
                                 Util.sleep(5);
-                            } 
+                            }
                         });
                     }
+
                 }
                 contactsDemo.revalidate();
-                
+
                 finishedLoading = true;
             });
         });
@@ -399,6 +456,5 @@ public class Contacts extends Demo {
         Container c = fab.bindFabToContainer(contactsDemo);
         return c;
     }
-    
-    
+
 }

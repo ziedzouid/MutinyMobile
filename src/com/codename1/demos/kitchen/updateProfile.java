@@ -28,7 +28,6 @@ import com.codename1.components.OnOffSwitch;
 import com.codename1.components.ToastBar;
 import static com.codename1.demos.kitchen.KitchenSink.res;
 import com.codename1.io.Log;
-import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.Button;
 import com.codename1.ui.ComboBox;
 import com.codename1.ui.Component;
@@ -57,10 +56,14 @@ import java.io.IOException;
  *
  * @author Shai Almog
  */
-public class Input3 extends Demo {
+public class updateProfile extends Demo {
+
+    static TextField nameup, lastnameup, emailup, passwordup, passwordconfirmup, phonenumberup;
+    static Picker birthdayup, roleup;
+    static OnOffSwitch sexeup;
 
     public String getDisplayName() {
-        return "My Account";
+        return "Update My Profil";
     }
 
     public Image getDemoIcon() {
@@ -113,40 +116,54 @@ public class Input3 extends Demo {
 
     @Override
     public Container createDemo(Form parent) {
+        nameup = new TextField(UserDAO.user.nom, "Name");
+        FontImage.setMaterialIcon(nameup.getHintLabel(), FontImage.MATERIAL_PERSON);
+        lastnameup = new TextField(UserDAO.user.prenom, "LastName");
+        FontImage.setMaterialIcon(lastnameup.getHintLabel(), FontImage.MATERIAL_PERSON);
+        emailup = new TextField(UserDAO.user.email, "E-mail");
+        FontImage.setMaterialIcon(emailup.getHintLabel(), FontImage.MATERIAL_EMAIL);
 
-        Label firstname = new Label("Name");
-        FontImage.setMaterialIcon(firstname, FontImage.MATERIAL_PERSON);
-        Label lastname = new Label("LastName");
-        FontImage.setMaterialIcon(lastname, FontImage.MATERIAL_PERSON);
-        Label birthdate = new Label("Birth Date");
-        FontImage.setMaterialIcon(birthdate, FontImage.MATERIAL_DATE_RANGE);
-        Label sexe = new Label("Sexe");
-        FontImage.setMaterialIcon(sexe, FontImage.MATERIAL_PEOPLE);
-        Label mail = new Label("Email");
-        FontImage.setMaterialIcon(mail, FontImage.MATERIAL_EMAIL);
-        Label phone = new Label("Phone Number");
-        FontImage.setMaterialIcon(phone, FontImage.MATERIAL_SMARTPHONE);
+        /* password = new TextField("", "Password");
+        FontImage.setMaterialIcon(password.getHintLabel(), FontImage.MATERIAL_LOCK);
+        passwordconfirm = new TextField("", "PasswordConf");
+        FontImage.setMaterialIcon(passwordconfirm.getHintLabel(), FontImage.MATERIAL_LOCK);*/
+        String ph = Integer.toString(UserDAO.user.tel);
+        phonenumberup = new TextField(ph, "PhoneNumber");
+        FontImage.setMaterialIcon(phonenumberup.getHintLabel(), FontImage.MATERIAL_PHONE);
+        // TextField bio = new TextField("", "Bio", 2, 20);
+        //FontImage.setMaterialIcon(bio.getHintLabel(), FontImage.MATERIAL_LIBRARY_BOOKS);
+        birthdayup = new Picker();
+        birthdayup.setType(Display.PICKER_TYPE_DATE);
+        birthdayup.setDate(UserDAO.user.date_naissance);
+        //   sexe = new OnOffSwitch();
+        // bio.setSingleLineTextArea(false);
+        //String[] characters = {"PILOT", "PASSENGER"};
+
+        roleup = new Picker();
+        //  role.setStrings(characters);
+        //role.setSelectedString(characters[0]);
 
         Container comps = new Container();
-        String tel = Integer.toString(UserDAO.user.tel);
-        String date = new SimpleDateFormat("MM/dd/yyyy").format(UserDAO.user.date_naissance);
-        /* Container swt = new Container(new BoxLayout(BoxLayout.X_AXIS));
-        swt.add(new Label("MAN", "InputContainerLabel"));
-        swt.add(sexe);
-        swt.add(new Label("WOMAN", "InputContainerLabel"));*/
+        //Container swt = new Container(new BoxLayout(BoxLayout.X_AXIS));
+        // swt.add(new Label("MAN", "InputContainerLabel"));
+        //swt.add(sexe);
+        //swt.add(new Label("WOMAN", "InputContainerLabel"));
         addComps(parent, comps,
-                BorderLayout.center(firstname).
-                        add(BorderLayout.EAST, new Label(UserDAO.user.prenom, "InputContainerLabel")),
-                BorderLayout.center(lastname).
-                        add(BorderLayout.EAST, new Label(UserDAO.user.nom, "InputContainerLabel")),
-                BorderLayout.center(birthdate).
-                        add(BorderLayout.EAST, new Label(date, "InputContainerLabel")),
-                BorderLayout.center(sexe).
-                        add(BorderLayout.EAST, new Label(UserDAO.user.sexe, "InputContainerLabel")),
-                BorderLayout.center(mail).
-                        add(BorderLayout.EAST, new Label(UserDAO.user.email, "InputContainerLabel")),
-                BorderLayout.center(phone).
-                        add(BorderLayout.EAST, new Label(tel, "InputContainerLabel"))
+                new Label("FirstName", "InputContainerLabel"),
+                nameup,
+                new Label("LastName", "InputContainerLabel"),
+                lastnameup,
+                new Label("E-Mail", "InputContainerLabel"),
+                emailup,
+                new Label("Phone Number", "InputContainerLabel"),
+                phonenumberup,
+                // new Label("Password", "InputContainerLabel"),
+                //  password,
+                //  new Label("Confirm your Password", "InputContainerLabel"),
+                // passwordconfirm,
+                BorderLayout.center(new Label("Birthday", "InputContainerLabel")).
+                        add(BorderLayout.EAST, birthdayup)
+        // swt, role
         );
 
         comps.setScrollableY(true);
@@ -154,31 +171,17 @@ public class Input3 extends Demo {
 
         Container content = BorderLayout.center(comps);
 
-        Button login = new Button("Modify profile");
-        Button singup = new Button("Change Password");
-        //login.setUIID("InputAvatarImage");
-        Container ctnbt = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        ctnbt.add(login);
-        ctnbt.add(singup);
+        Button save = new Button("Confirm");
+        save.setUIID("InputAvatarImage");
+        content.add(BorderLayout.SOUTH, save);
+        UserDAO userDAO = new UserDAO();
 
-        content.add(BorderLayout.SOUTH, ctnbt);
+        save.addActionListener(e -> {
 
-        // UserDAO userDAO = new UserDAO();
-        login.addActionListener(e -> {
-            //ToastBar.showMessage("Save pressed...", FontImage.MATERIAL_INFO);
-            //userDAO.RegisterUser();
-            Demo d = new updateProfile();
-            d.init(res);
-            Form f = new Form("UPDATE", new BorderLayout());
-            f.add(BorderLayout.CENTER, d.createDemo(f));
-            Form previous = Display.getInstance().getCurrent();
-            f.getToolbar().setBackCommand(" ", ee -> {
-                if (d.onBack()) {
-                    previous.showBack();
-                }
-            });;
-
-            f.show();
+            userDAO.updateUser();
+           /* ToastBar.showMessage("Saving Changes...", FontImage.MATERIAL_INFO);
+            KitchenSink ks = new KitchenSink();
+            ks.showMainUI();*/
 
         });
 
