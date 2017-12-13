@@ -26,6 +26,7 @@ import com.codename1.capture.Capture;
 import com.codename1.components.FloatingHint;
 import com.codename1.components.OnOffSwitch;
 import com.codename1.components.ToastBar;
+import static com.codename1.demos.kitchen.Input.sexe;
 import static com.codename1.demos.kitchen.KitchenSink.res;
 import com.codename1.io.Log;
 import com.codename1.l10n.SimpleDateFormat;
@@ -41,6 +42,8 @@ import com.codename1.ui.Image;
 import com.codename1.ui.Label;
 import com.codename1.ui.TextField;
 import com.codename1.ui.animations.CommonTransitions;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.FlowLayout;
@@ -126,10 +129,14 @@ public class Input3 extends Demo {
         FontImage.setMaterialIcon(mail, FontImage.MATERIAL_EMAIL);
         Label phone = new Label("Phone Number");
         FontImage.setMaterialIcon(phone, FontImage.MATERIAL_SMARTPHONE);
+        Label accountdis = new Label("Disable Account");
+        FontImage.setMaterialIcon(accountdis, FontImage.MATERIAL_CLOSE);
 
         Container comps = new Container();
         String tel = Integer.toString(UserDAO.user.tel);
         String date = new SimpleDateFormat("MM/dd/yyyy").format(UserDAO.user.date_naissance);
+        OnOffSwitch accountval = new OnOffSwitch();
+        accountval.setName("Disable");
         /* Container swt = new Container(new BoxLayout(BoxLayout.X_AXIS));
         swt.add(new Label("MAN", "InputContainerLabel"));
         swt.add(sexe);
@@ -146,8 +153,32 @@ public class Input3 extends Demo {
                 BorderLayout.center(mail).
                         add(BorderLayout.EAST, new Label(UserDAO.user.email, "InputContainerLabel")),
                 BorderLayout.center(phone).
-                        add(BorderLayout.EAST, new Label(tel, "InputContainerLabel"))
+                        add(BorderLayout.EAST, new Label(tel, "InputContainerLabel")),
+                BorderLayout.center(accountdis).
+                        add(BorderLayout.EAST, accountval)
         );
+
+         
+            accountval.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    if (accountval.isValue() == true){
+                    boolean conf = Dialog.show("error", "TEST ACC", "cancel", "ok");
+                    if (conf == false) {
+                        Dialog.show("INFO1", "OK", "x", "a");
+                        //accountval.setValue(false);
+                        accountval.setValue(false);
+
+                    } else {
+                        //Dialog.show("INFO2", "CANCEL", "x", "a");
+                        accountval.setValue(false);
+
+                    }
+                    }
+                }
+            });
+        
 
         comps.setScrollableY(true);
         comps.setUIID("PaddedContainer");

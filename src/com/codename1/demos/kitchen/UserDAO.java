@@ -40,6 +40,7 @@ public class UserDAO {
     Form acceuil;
     int attempt;
     static ArrayList<User> users;
+    String en;
 
     public void loginUser() {
         getListUsers();
@@ -73,6 +74,7 @@ public class UserDAO {
                         List<String> content = new ArrayList<>();
                         content.addAll((Collection<? extends String>) (data.get("roles")));
                         user.setRole(content.get(0));
+                        en = (String) data.get("enabled");
                     }
                 } catch (IOException err) {
                     Log.e(err);
@@ -84,6 +86,8 @@ public class UserDAO {
             @Override
             protected void postResponse() {
                 System.out.println(user);
+                System.out.println(en);
+
                 if (passlog.equals("")) {
                     Dialog.show("error", "Please put your password ! ", "cancel", "ok");
                 } else if (!(user.getMdp().equals(passlog))) {
@@ -373,7 +377,7 @@ public class UserDAO {
 
                 };
 
-                connectionRequest.setUrl("http://localhost/api-cool/web/app_dev.php/user/edit?id="+ user.id +"&firstname=" + nom + "&lastname=" + prenom + "&mail=" + mail + "&phone=" + tel + "&birthdate=" + updateProfile.birthdayup.getDate());
+                connectionRequest.setUrl("http://localhost/api-cool/web/app_dev.php/user/edit?id=" + user.id + "&firstname=" + nom + "&lastname=" + prenom + "&mail=" + mail + "&phone=" + tel + "&birthdate=" + updateProfile.birthdayup.getDate());
                 NetworkManager.getInstance().addToQueue(connectionRequest);
             }
         }
