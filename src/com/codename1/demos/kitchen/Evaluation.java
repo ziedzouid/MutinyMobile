@@ -4,9 +4,10 @@
  * and open the template in the editor.
  */
 package com.codename1.demos.kitchen;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Objects;
+
+
+import java.util.Date;
+
 /**
  *
  * @author Shil
@@ -14,13 +15,13 @@ import java.util.Objects;
 public class Evaluation {
      private int id;
     private byte note; //max 127
-    private Timestamp myDate;//type date ?
+    private Date myDate;//type date ?
     // private DATETIME date_evaluation ; //type date ?
     private String commentaire;
    
 
     public Evaluation(byte note, String commentaire) {
-        Timestamp date = Timestamp.valueOf(LocalDateTime.now());
+        Date date = new Date();
         //  Date date = Date.valueOf(LocalDate.now());
         this.myDate = date;
         this.note = note;
@@ -32,7 +33,7 @@ public class Evaluation {
     }
 
     // les constructeur à modifier aprés integration
-    public Evaluation(int id, byte note, Timestamp myDate, String commentaire) {
+    public Evaluation(int id, byte note, Date myDate, String commentaire) {
         this.id = id;
         this.note = note;
         this.myDate = myDate;
@@ -40,7 +41,7 @@ public class Evaluation {
        
     }
 
-    public Evaluation(byte note, Timestamp myDate, String commentaire) {
+    public Evaluation(byte note, Date myDate, String commentaire) {
 
         this.note = note;
         this.myDate = myDate;
@@ -64,11 +65,11 @@ public class Evaluation {
         this.note = note;
     }
 
-    public Timestamp getMyDate() {
+    public Date getMyDate() {
         return myDate;
     }
 
-    public void setMyDate(Timestamp myDate) {
+    public void setMyDate(Date myDate) {
         this.myDate = myDate;
     }
 

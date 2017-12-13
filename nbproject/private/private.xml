@@ -2,6 +2,7 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+<<<<<<< HEAD
         <group>
             <file>file:/C:/Users/Shil/Documents/PiMobile/MutinyMobile/src/com/codename1/demos/kitchen/Contacts.java</file>
             <file>file:/C:/Users/Shil/Documents/PiMobile/MutinyMobile/src/com/codename1/demos/kitchen/KitchenSink.java</file>
@@ -10,5 +11,8 @@
             <file>file:/C:/Users/Shil/Documents/PiMobile/MutinyMobile/src/com/codename1/demos/kitchen/DemoComponent.java</file>
             <file>file:/C:/Users/Shil/Documents/PiMobile/MutinyMobile/test/tests/UnnamedTest.java</file>
         </group>
+=======
+        <group/>
+>>>>>>> 1692ca814599d7a88c034882ade91719df6a24f3
     </open-files>
 </project-private>

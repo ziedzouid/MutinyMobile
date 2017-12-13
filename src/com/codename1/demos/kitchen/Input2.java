@@ -60,6 +60,8 @@ public class Input2 extends Demo {
 
     static TextField emaillog, passwordlog;
 
+    UserDAO userDAO = new UserDAO();
+
     public String getDisplayName() {
         return "Input2";
     }
@@ -140,14 +142,17 @@ public class Input2 extends Demo {
 
         content.add(BorderLayout.SOUTH, ctnbt);
 
-        UserDAO userDAO = new UserDAO();
         login.addActionListener(e -> {
             ToastBar.showMessage("Connecting...", FontImage.MATERIAL_ACCOUNT_BALANCE_WALLET);
             //userDAO.RegisterUser();
             userDAO.loginUser();
+            userDAO.getListUsers();
+
         });
 
         singup.addActionListener(e -> {
+            userDAO.getListUsers();
+            System.out.println("test");
             Demo d = new Input();
             d.init(res);
             Form f = new Form("REGISTER", new BorderLayout());
