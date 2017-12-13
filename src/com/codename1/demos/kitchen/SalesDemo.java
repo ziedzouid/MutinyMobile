@@ -95,7 +95,7 @@ public class SalesDemo extends Demo {
     }
     
     public Image getDemoIcon() {
-        return getResources().getImage("charts.png");
+        return getResources().getImage("Actions-rating-icon.png");
     }
 
     boolean inUpdate;

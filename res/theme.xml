@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <resource majorVersion="1" minorVersion="7" useXmlUI="false">
+    <image name="Actions-rating-icon.png"  />
     <image name="background.jpg"  />
     <image name="backroad.jpg"  />
     <image name="card-full.png" type="multi"  />
@@ -19,6 +20,7 @@
     <image name="mohamed.jpg"  />
     <image name="nativeTheme.jpg"  />
     <image name="omar.jpg"  />
+    <image name="Rate.png"  />
     <image name="RedCard.borderBottom_1.png" type="multi"  />
     <image name="RedCard.borderBottomL_1.png" type="multi"  />
     <image name="RedCard.borderBottomR_1.png" type="multi"  />
