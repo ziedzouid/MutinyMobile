@@ -174,11 +174,12 @@ public class Input extends Demo {
         save.addActionListener(e -> {            
            
             userDAO.RegisterUser();
+           // userDAO.getListUsers();
         });
 
         content.setUIID("InputContainerForeground");
 
-        Button avatar = new Button("");
+       /* Button avatar = new Button("");
         avatar.setUIID("InputAvatar");
         Image defaultAvatar = FontImage.createMaterial(FontImage.MATERIAL_CAMERA, "InputAvatarImage", 8);
         Image circleMaskImage = getResources().getImage("circle.png");
@@ -215,10 +216,9 @@ public class Input extends Demo {
                     }
                 }, Display.GALLERY_IMAGE);
             }
-        });
+        });*/
 
-        Container actualContent = LayeredLayout.encloseIn(content,
-                FlowLayout.encloseCenter(avatar));
+        Container actualContent = LayeredLayout.encloseIn(content);
 
         Container input;
         if (!Display.getInstance().isTablet()) {

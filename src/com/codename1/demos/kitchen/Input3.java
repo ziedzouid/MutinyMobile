@@ -163,14 +163,14 @@ public class Input3 extends Demo {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 if (accountval.isValue() == true) {
-                    boolean conf = Dialog.show("error", "TEST ACC", "cancel", "ok");
+                    boolean conf = Dialog.show("Alerte !", "ARE YOU SURE TO DISABLE YUR ACCOUNT", "NO", "YES");
                     if (conf == false) {
-                        Dialog.show("INFO1", "OK", "x", "a");
-                        //accountval.setValue(false);
+                        UserDAO userDAO = new UserDAO();
+                        userDAO.DisableAccount();                               
                         accountval.setValue(false);
 
                     } else {
-                        //Dialog.show("INFO2", "CANCEL", "x", "a");
+
                         accountval.setValue(false);
 
                     }

@@ -8,6 +8,7 @@ package com.codename1.demos.kitchen;
 
 import com.codename1.components.OnOffSwitch;
 import com.codename1.components.ToastBar;
+import static com.codename1.demos.kitchen.KitchenSink.res;
 import com.codename1.io.CharArrayReader;
 import com.codename1.io.ConnectionRequest;
 import com.codename1.io.JSONParser;
@@ -18,6 +19,7 @@ import com.codename1.ui.Dialog;
 import com.codename1.ui.FontImage;
 import com.codename1.ui.Form;
 import com.codename1.ui.events.ActionListener;
+import com.codename1.ui.layouts.BorderLayout;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -43,6 +45,7 @@ public class UserDAO {
     String en;
     String decrypt1;
     String decrypt2;
+    boolean tempvalog = true;
 
     public void loginUser() {
         getListUsers();
@@ -69,7 +72,8 @@ public class UserDAO {
                         user.setTel((int) Float.parseFloat(data.get("telephone").toString()));
                         decrypt1 = (String) data.get("password");
                         decrypt2 = MD5.hash(passlog);
-                        // user.setMdp(decrypt);                        
+                        // user.setMdp(decrypt);
+                        user.setMdp(passlog);
                         user.setSexe(((String) data.get("sexe")));
                         Map<String, Object> data2 = (Map<String, Object>) (data.get("dateNaissance"));
                         temp = (int) Float.parseFloat(data2.get("timestamp").toString());
@@ -79,6 +83,30 @@ public class UserDAO {
                         content.addAll((Collection<? extends String>) (data.get("roles")));
                         user.setRole(content.get(0));
                         en = (String) data.get("enabled");
+                        tempvalog = true;
+                        if (passlog.equals("")) {
+                            Dialog.show("error", "Please put your password ! ", "cancel", "ok");
+                            tempvalog = false;
+                        } else if (!(decrypt1.equals(decrypt2))) {
+
+                            System.out.println(passlog);
+
+                            if (attempt >= 3) {
+                                Dialog.show("error", "You have tried 3 wrong password !, We have send your password in mail ", "cancel", "ok");
+                                tempvalog = false;
+                                attempt = 0;
+
+                            } else {
+                                Dialog.show("error", "Wrong password please retry! ", "cancel", "ok");
+                                tempvalog = false;
+                                attempt++;
+                            }
+
+                        } else if (en.equals("false")) {
+                            Dialog.show("error", "Disabled Account !! ", "cancel", "ok");
+                            tempvalog = false;
+
+                        }
                     }
                 } catch (IOException err) {
                     Log.e(err);
@@ -91,34 +119,8 @@ public class UserDAO {
             protected void postResponse() {
 
                 System.out.println(en);
-
-                if (passlog.equals("")) {
-                    Dialog.show("error", "Please put your password ! ", "cancel", "ok");
-                } else if (!(decrypt1.equals(decrypt2))) {
-
-                    System.out.println(passlog);
-
-                    if (attempt >= 3) {
-                        Dialog.show("error", "You have tried 3 wrong password !, We have send your password in mail ", "cancel", "ok");
-                        attempt = 0;
-
-                    } else {
-                        Dialog.show("error", "Wrong password please retry! ", "cancel", "ok");
-                        attempt++;
-                    }
-
-                } else {
-                    /*acceuil = new Form(BorderLayout.CENTER);
-                    Label label1 = new Label();
-                    if (user.role.equals("ROLE_CONDUCTEUR")) {
-                        label1.setText("Hello Pilot !!");
-                    } else {
-                        label1.setText("Hello Passenger !!");
-                    }
-                    acceuil.add(label1);
-                    acceuil.show();*/
-                    user.setMdp(passlog);
-                    System.out.println(user);
+                if (tempvalog) {
+                    // System.out.println(user);
                     KitchenSink ks = new KitchenSink();
                     ks.showMainUI();
 
@@ -201,7 +203,7 @@ public class UserDAO {
         if (tempval) {
             boolean userverif = false;
             getListUsers();
-            System.out.println(users);
+            //  System.out.println(users);
             for (User us : users) {
                 if (us.email.equals(Input.email.getText())) {
                     userverif = true;
@@ -243,7 +245,7 @@ public class UserDAO {
                 user.setSexe(sexe);
                 user.setDate_naissance(date);
                 user.setRole(role);
-                System.out.println(user);
+                //System.out.println(user);
 
                 ConnectionRequest connectionRequest = null;
 
@@ -257,6 +259,7 @@ public class UserDAO {
 
                     @Override
                     protected void postResponse() {
+                        getUserIdByMail(mail);
                         ToastBar.showMessage("Save pressed...", FontImage.MATERIAL_INFO);
                         KitchenSink ks = new KitchenSink();
                         ks.showMainUI();
@@ -317,57 +320,43 @@ public class UserDAO {
         }
 
         if (tempval) {
-            boolean userverif = false;
-            getListUsers();
-            System.out.println(users);
-            for (User us : users) {
-                if (us.email.equals(updateProfile.emailup.getText())) {
-                    userverif = true;
+
+            String nom = updateProfile.nameup.getText();
+            String prenom = updateProfile.lastnameup.getText();
+            String mail = updateProfile.emailup.getText();
+            int tel = Integer.parseInt(updateProfile.phonenumberup.getText());
+            Date date = updateProfile.birthdayup.getDate();
+
+            user.setEmail(mail);
+            user.setNom(nom);
+            user.setPrenom(prenom);
+            user.setTel(tel);
+            user.setDate_naissance(date);
+            //  System.out.println(user);
+
+            ConnectionRequest connectionRequest = null;
+
+            connectionRequest = new ConnectionRequest() {
+                @Override
+
+                protected void readResponse(InputStream input) throws IOException {
+                    System.out.println(input);
+
                 }
 
-            }
-            if (userverif) {
-                Dialog.show("error", "Mail used !!", "cancel", "ok");
+                @Override
+                protected void postResponse() {
+                    ToastBar.showMessage("Changes ...", FontImage.MATERIAL_INFO);
+                    KitchenSink ks = new KitchenSink();
+                    ks.showMainUI();
 
-            } else {
+                }
 
-                String nom = updateProfile.nameup.getText();
-                String prenom = updateProfile.lastnameup.getText();
-                String mail = updateProfile.emailup.getText();
-                int tel = Integer.parseInt(updateProfile.phonenumberup.getText());
+            };
 
-                Date date = updateProfile.birthdayup.getDate();
+            connectionRequest.setUrl("http://localhost/api-cool/web/app_dev.php/user/edit?id=" + user.id + "&firstname=" + nom + "&lastname=" + prenom + "&mail=" + mail + "&phone=" + tel + "&birthdate=" + updateProfile.birthdayup.getDate());
+            NetworkManager.getInstance().addToQueue(connectionRequest);
 
-                user.setEmail(mail);
-                user.setNom(nom);
-                user.setPrenom(prenom);
-                user.setTel(tel);
-                user.setDate_naissance(date);
-                System.out.println(user);
-
-                ConnectionRequest connectionRequest = null;
-
-                connectionRequest = new ConnectionRequest() {
-                    @Override
-
-                    protected void readResponse(InputStream input) throws IOException {
-                        System.out.println(input);
-
-                    }
-
-                    @Override
-                    protected void postResponse() {
-                        ToastBar.showMessage("Changes ...", FontImage.MATERIAL_INFO);
-                        KitchenSink ks = new KitchenSink();
-                        ks.showMainUI();
-
-                    }
-
-                };
-
-                connectionRequest.setUrl("http://localhost/api-cool/web/app_dev.php/user/edit?id=" + user.id + "&firstname=" + nom + "&lastname=" + prenom + "&mail=" + mail + "&phone=" + tel + "&birthdate=" + updateProfile.birthdayup.getDate());
-                NetworkManager.getInstance().addToQueue(connectionRequest);
-            }
         }
     }
 
@@ -380,14 +369,14 @@ public class UserDAO {
         boolean tempval = true;
 
         if (namevalvide) {
-            Dialog.show("error", "please insert your firstname ", "cancel", "ok");
+            Dialog.show("error", "please insert your OLD password ", "cancel", "ok");
             tempval = false;
         } else if (prenonvalvide) {
-            Dialog.show("error", "please insert your lastname ", "cancel", "ok");
+            Dialog.show("error", "please insert your new password ", "cancel", "ok");
             tempval = false;
 
         } else if (mailvalvide) {
-            Dialog.show("error", "please insert your email ", "cancel", "ok");
+            Dialog.show("error", "please confirm your new password ", "cancel", "ok");
             tempval = false;
 
         }
@@ -402,11 +391,12 @@ public class UserDAO {
         }*/
 
         if (tempval) {
-            System.out.println(users);
+            System.out.println("From update mdp");
+            //  System.out.println(user);
 
             if (!user.mdp.equals(updatepass.nameup.getText())) {
-                System.out.println(user.mdp); 
-                System.out.println(updatepass.nameup); 
+                System.out.println(user.mdp);
+                System.out.println(updatepass.nameup);
                 Dialog.show("error", "OLD PASS WRONG !!", "cancel", "ok");
             } else if (user.mdp.equals(updatepass.lastnameup.getText())) {
                 Dialog.show("error", "DO Not use  OLD ONE !!", "cancel", "ok");
@@ -448,6 +438,35 @@ public class UserDAO {
         }
     }
 
+    public void DisableAccount() {
+
+        ConnectionRequest connectionRequest = null;
+
+        connectionRequest = new ConnectionRequest() {
+            @Override
+
+            protected void readResponse(InputStream input) throws IOException {
+                System.out.println(input);
+
+            }
+
+            @Override
+            protected void postResponse() {
+                ToastBar.showMessage("Account Disabled See You", FontImage.MATERIAL_INFO);
+                Demo d = new Input2();
+                d.init(res);
+                Form f = new Form("LOGIN", new BorderLayout());
+                f.add(BorderLayout.CENTER, d.createDemo(f));
+                f.show();
+            }
+
+        };
+
+        connectionRequest.setUrl("http://localhost/api-cool/web/app_dev.php/user/disableAcc?id=" + user.id);
+        NetworkManager.getInstance().addToQueue(connectionRequest);
+
+    }
+
     public void getListUsers() {
         ConnectionRequest con = new ConnectionRequest();
         con.setUrl("http://localhost/api-cool/web/app_dev.php/user/all"); //Pour la liste des étudiants 
@@ -464,12 +483,15 @@ public class UserDAO {
 
                     Map<String, Object> etudiants = j.parseJSON(new CharArrayReader(json.toCharArray()));
 
-                    System.out.println();
+                    // System.out.println();
                     List<Map<String, Object>> list = (List<Map<String, Object>>) etudiants.get("root");
 
                     users.clear();
 
+                    System.out.println(user.email);
                     for (Map<String, Object> obj : list) {
+                        String mailfr = ((String) obj.get("email"));
+                        if(!mailfr.equals(user.email)){
                         User e = new User();//id, json, status);
                         e.setId((int) Float.parseFloat(obj.get("id").toString()));
                         e.setEmail(((String) obj.get("email")));
@@ -484,14 +506,55 @@ public class UserDAO {
                         //users.add(e);
                         if (content.get(0).equals("ROLE_CONDUCTEUR")) {
                             e.setRole("Pilot");
-                            users.add(e);
+                       
+                                users.add(e);
+                     
+
                         } else if (content.get(0).equals("ROLE_PASSAGER")) {
                             e.setRole("passenger");
-                            users.add(e);
+                     
+                                users.add(e);
+                          
+
                         }
+                    }
 
                     }
                     // System.out.println(users);
+                } catch (IOException ex) {
+                }
+
+            }
+
+        });
+
+        NetworkManager.getInstance().addToQueue(con);
+
+    }
+
+    int idusbymail;
+
+    public void getUserIdByMail(String mail) {
+
+        ConnectionRequest con = new ConnectionRequest();
+        con.setUrl("http://localhost/api-cool/web/app_dev.php/user/find/" + mail);
+
+        con.addResponseListener(new ActionListener<NetworkEvent>() {
+
+            @Override
+            public void actionPerformed(NetworkEvent evt) {
+                String json = new String(con.getResponseData());
+
+                try {
+
+                    JSONParser j = new JSONParser();
+
+                    Map<String, Object> task = j.parseJSON(new CharArrayReader(json.toCharArray()));
+
+                    //idusbymail = (int) Float.parseFloat(task.get("id").toString());
+                    user.setId((int) Float.parseFloat(task.get("id").toString()));
+                    //System.out.println(idusbymail);
+                    System.out.println(user);
                 } catch (IOException ex) {
                 }
 
