@@ -26,10 +26,8 @@ import com.codename1.capture.Capture;
 import com.codename1.components.FloatingHint;
 import com.codename1.components.OnOffSwitch;
 import com.codename1.components.ToastBar;
-import static com.codename1.demos.kitchen.Input.sexe;
 import static com.codename1.demos.kitchen.KitchenSink.res;
 import com.codename1.io.Log;
-import com.codename1.l10n.SimpleDateFormat;
 import com.codename1.ui.Button;
 import com.codename1.ui.ComboBox;
 import com.codename1.ui.Component;
@@ -42,8 +40,6 @@ import com.codename1.ui.Image;
 import com.codename1.ui.Label;
 import com.codename1.ui.TextField;
 import com.codename1.ui.animations.CommonTransitions;
-import com.codename1.ui.events.ActionEvent;
-import com.codename1.ui.events.ActionListener;
 import com.codename1.ui.layouts.BorderLayout;
 import com.codename1.ui.layouts.BoxLayout;
 import com.codename1.ui.layouts.FlowLayout;
@@ -60,10 +56,14 @@ import java.io.IOException;
  *
  * @author Shai Almog
  */
-public class Input3 extends Demo {
+public class updatepass extends Demo {
+
+    static TextField nameup, lastnameup, emailup, passwordup, passwordconfirmup, phonenumberup;
+    static Picker birthdayup, roleup;
+    static OnOffSwitch sexeup;
 
     public String getDisplayName() {
-        return "My Account";
+        return "Update My Password";
     }
 
     public Image getDemoIcon() {
@@ -116,116 +116,43 @@ public class Input3 extends Demo {
 
     @Override
     public Container createDemo(Form parent) {
+        nameup = new TextField("", "Your Pass");
+        FontImage.setMaterialIcon(nameup.getHintLabel(), FontImage.MATERIAL_LOCK);
 
-        Label firstname = new Label("Name");
-        FontImage.setMaterialIcon(firstname, FontImage.MATERIAL_PERSON);
-        Label lastname = new Label("LastName");
-        FontImage.setMaterialIcon(lastname, FontImage.MATERIAL_PERSON);
-        Label birthdate = new Label("Birth Date");
-        FontImage.setMaterialIcon(birthdate, FontImage.MATERIAL_DATE_RANGE);
-        Label sexe = new Label("Sexe");
-        FontImage.setMaterialIcon(sexe, FontImage.MATERIAL_PEOPLE);
-        Label mail = new Label("Email");
-        FontImage.setMaterialIcon(mail, FontImage.MATERIAL_EMAIL);
-        Label phone = new Label("Phone Number");
-        FontImage.setMaterialIcon(phone, FontImage.MATERIAL_SMARTPHONE);
-        Label accountdis = new Label("Disable Account");
-        FontImage.setMaterialIcon(accountdis, FontImage.MATERIAL_CLOSE);
+        lastnameup = new TextField("", "New Pass");
+        FontImage.setMaterialIcon(lastnameup.getHintLabel(), FontImage.MATERIAL_LOCK);
+        emailup = new TextField("", "Confirm !");
+        FontImage.setMaterialIcon(emailup.getHintLabel(), FontImage.MATERIAL_LOCK);
 
         Container comps = new Container();
-        String tel = Integer.toString(UserDAO.user.tel);
-        String date = new SimpleDateFormat("MM/dd/yyyy").format(UserDAO.user.date_naissance);
-        OnOffSwitch accountval = new OnOffSwitch();
-        accountval.setName("Disable");
-        /* Container swt = new Container(new BoxLayout(BoxLayout.X_AXIS));
-        swt.add(new Label("MAN", "InputContainerLabel"));
-        swt.add(sexe);
-        swt.add(new Label("WOMAN", "InputContainerLabel"));*/
+
         addComps(parent, comps,
-                BorderLayout.center(firstname).
-                        add(BorderLayout.EAST, new Label(UserDAO.user.prenom, "InputContainerLabel")),
-                BorderLayout.center(lastname).
-                        add(BorderLayout.EAST, new Label(UserDAO.user.nom, "InputContainerLabel")),
-                BorderLayout.center(birthdate).
-                        add(BorderLayout.EAST, new Label(date, "InputContainerLabel")),
-                BorderLayout.center(sexe).
-                        add(BorderLayout.EAST, new Label(UserDAO.user.sexe, "InputContainerLabel")),
-                BorderLayout.center(mail).
-                        add(BorderLayout.EAST, new Label(UserDAO.user.email, "InputContainerLabel")),
-                BorderLayout.center(phone).
-                        add(BorderLayout.EAST, new Label(tel, "InputContainerLabel")),
-                BorderLayout.center(accountdis).
-                        add(BorderLayout.EAST, accountval)
+                new Label("Enter Your old pass", "InputContainerLabel"),
+                nameup,
+                new Label("The new One !", "InputContainerLabel"),
+                lastnameup,
+                new Label("Confirm !", "InputContainerLabel"),
+                emailup
+        // swt, role
         );
-
-        accountval.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                if (accountval.isValue() == true) {
-                    boolean conf = Dialog.show("error", "TEST ACC", "cancel", "ok");
-                    if (conf == false) {
-                        Dialog.show("INFO1", "OK", "x", "a");
-                        //accountval.setValue(false);
-                        accountval.setValue(false);
-
-                    } else {
-                        //Dialog.show("INFO2", "CANCEL", "x", "a");
-                        accountval.setValue(false);
-
-                    }
-                }
-            }
-        });
 
         comps.setScrollableY(true);
         comps.setUIID("PaddedContainer");
 
         Container content = BorderLayout.center(comps);
 
-        Button login = new Button("Modify profile");
-        Button singup = new Button("Change Password");
-        //login.setUIID("InputAvatarImage");
-        Container ctnbt = new Container(new BoxLayout(BoxLayout.Y_AXIS));
-        ctnbt.add(login);
-        ctnbt.add(singup);
+        Button save = new Button("Confirm");
+        save.setUIID("InputAvatarImage");
+        content.add(BorderLayout.SOUTH, save);
+        UserDAO userDAO = new UserDAO();
 
-        content.add(BorderLayout.SOUTH, ctnbt);
+        save.addActionListener(e -> {
 
-        // UserDAO userDAO = new UserDAO();
-        login.addActionListener(e -> {
-            //ToastBar.showMessage("Save pressed...", FontImage.MATERIAL_INFO);
-            //userDAO.RegisterUser();
-            Demo d = new updateProfile();
-            d.init(res);
-            Form f = new Form("UPDATE", new BorderLayout());
-            f.add(BorderLayout.CENTER, d.createDemo(f));
-            Form previous = Display.getInstance().getCurrent();
-            f.getToolbar().setBackCommand(" ", ee -> {
-                if (d.onBack()) {
-                    previous.showBack();
-                }
-            });;
-
-            f.show();
-
-        });
-
-        singup.addActionListener(e -> {
-            //ToastBar.showMessage("Save pressed...", FontImage.MATERIAL_INFO);
-            //userDAO.RegisterUser();
-            Demo d = new updatepass();
-            d.init(res);
-            Form f = new Form("UPDATE PASS", new BorderLayout());
-            f.add(BorderLayout.CENTER, d.createDemo(f));
-            Form previous = Display.getInstance().getCurrent();
-            f.getToolbar().setBackCommand(" ", ee -> {
-                if (d.onBack()) {
-                    previous.showBack();
-                }
-            });;
-
-            f.show();
+            userDAO.updateUserMdp();
+           // userDAO.updateUser();
+            /* ToastBar.showMessage("Saving Changes...", FontImage.MATERIAL_INFO);
+            KitchenSink ks = new KitchenSink();
+            ks.showMainUI();*/
 
         });
 

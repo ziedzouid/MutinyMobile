@@ -41,6 +41,8 @@ public class UserDAO {
     int attempt;
     static ArrayList<User> users;
     String en;
+    String decrypt1;
+    String decrypt2;
 
     public void loginUser() {
         getListUsers();
@@ -65,7 +67,9 @@ public class UserDAO {
                         user.setNom(((String) data.get("nom")));
                         user.setPrenom(((String) data.get("prenom")));
                         user.setTel((int) Float.parseFloat(data.get("telephone").toString()));
-                        user.setMdp(((String) data.get("password")));
+                        decrypt1 = (String) data.get("password");
+                        decrypt2 = MD5.hash(passlog);
+                        // user.setMdp(decrypt);                        
                         user.setSexe(((String) data.get("sexe")));
                         Map<String, Object> data2 = (Map<String, Object>) (data.get("dateNaissance"));
                         temp = (int) Float.parseFloat(data2.get("timestamp").toString());
@@ -85,13 +89,13 @@ public class UserDAO {
 
             @Override
             protected void postResponse() {
-                System.out.println(user);
+
                 System.out.println(en);
 
                 if (passlog.equals("")) {
                     Dialog.show("error", "Please put your password ! ", "cancel", "ok");
-                } else if (!(user.getMdp().equals(passlog))) {
-                    System.out.println(user.getMdp());
+                } else if (!(decrypt1.equals(decrypt2))) {
+
                     System.out.println(passlog);
 
                     if (attempt >= 3) {
@@ -113,7 +117,8 @@ public class UserDAO {
                     }
                     acceuil.add(label1);
                     acceuil.show();*/
-
+                    user.setMdp(passlog);
+                    System.out.println(user);
                     KitchenSink ks = new KitchenSink();
                     ks.showMainUI();
 
@@ -260,7 +265,7 @@ public class UserDAO {
 
                 };
 
-                connectionRequest.setUrl("http://localhost/api-cool/web/app_dev.php/user/new?firstname=" + nom + "&lastname=" + prenom + "&mail=" + mail + "&phone=" + tel + "&password=" + pass + "&sexe=" + sexe + "&role=" + role + "&birthdate=" + Input.birthday.getDate());
+                connectionRequest.setUrl("http://localhost/api-cool/web/app_dev.php/user/new?firstname=" + nom + "&lastname=" + prenom + "&mail=" + mail + "&phone=" + tel + "&password=" + MD5.hash(pass) + "&sexe=" + sexe + "&role=" + role + "&birthdate=" + Input.birthday.getDate());
                 NetworkManager.getInstance().addToQueue(connectionRequest);
             }
         }
@@ -273,9 +278,6 @@ public class UserDAO {
         boolean mailvalvide = Validation.isEmpty(updateProfile.emailup.getText());
         boolean telvalvide = Validation.isEmpty(updateProfile.phonenumberup.getText());
 
-
-        /* long datebirth = Input.birthday.getDate().getTime();
-               System.out.println(datebirth);*/
         Date dateb = updateProfile.birthdayup.getDate();
         Date d = new Date();
         long local = d.getTime();
@@ -284,11 +286,6 @@ public class UserDAO {
         long age = agelong / (31536000 * 1000L);
         System.out.println(age);
 
-        /* System.out.println("local="+local);
-        System.out.println("birth="+birth);
-        System.out.println(local-birth);*/
-        //boolean mailvalstruct = Validation.test_email(mail);
-        //boolean telvalstruct = Validation.isIntConvertible(Input.phonenumber.getText());
         boolean tempval = true;
 
         if (namevalvide) {
@@ -341,19 +338,10 @@ public class UserDAO {
 
                 Date date = updateProfile.birthdayup.getDate();
 
-
-                /*String sexe;
-                if (updateProfile.sexeup.isValue() == false) {
-                    sexe = "Masculin";
-                } else {
-                    sexe = "Femenin";
-
-                }*/
                 user.setEmail(mail);
                 user.setNom(nom);
                 user.setPrenom(prenom);
                 user.setTel(tel);
-//                user.setSexe(sexe);
                 user.setDate_naissance(date);
                 System.out.println(user);
 
@@ -378,6 +366,83 @@ public class UserDAO {
                 };
 
                 connectionRequest.setUrl("http://localhost/api-cool/web/app_dev.php/user/edit?id=" + user.id + "&firstname=" + nom + "&lastname=" + prenom + "&mail=" + mail + "&phone=" + tel + "&birthdate=" + updateProfile.birthdayup.getDate());
+                NetworkManager.getInstance().addToQueue(connectionRequest);
+            }
+        }
+    }
+
+    public void updateUserMdp() {
+
+        boolean namevalvide = Validation.isEmpty(updatepass.nameup.getText());
+        boolean prenonvalvide = Validation.isEmpty(updatepass.lastnameup.getText());
+        boolean mailvalvide = Validation.isEmpty(updatepass.emailup.getText());
+
+        boolean tempval = true;
+
+        if (namevalvide) {
+            Dialog.show("error", "please insert your firstname ", "cancel", "ok");
+            tempval = false;
+        } else if (prenonvalvide) {
+            Dialog.show("error", "please insert your lastname ", "cancel", "ok");
+            tempval = false;
+
+        } else if (mailvalvide) {
+            Dialog.show("error", "please insert your email ", "cancel", "ok");
+            tempval = false;
+
+        }
+        /* else if (!mailvalstruct) {
+            Dialog.show("error", "please enter a valide email ", "cancel", "ok");
+            tempval = false;
+
+        } else if (!telvalstruct) {
+            Dialog.show("error", "please enter a valide phone number ", "cancel", "ok");
+            tempval = false;
+
+        }*/
+
+        if (tempval) {
+            System.out.println(users);
+
+            if (!user.mdp.equals(updatepass.nameup.getText())) {
+                System.out.println(user.mdp); 
+                System.out.println(updatepass.nameup); 
+                Dialog.show("error", "OLD PASS WRONG !!", "cancel", "ok");
+            } else if (user.mdp.equals(updatepass.lastnameup.getText())) {
+                Dialog.show("error", "DO Not use  OLD ONE !!", "cancel", "ok");
+
+            } else if (!updatepass.lastnameup.getText().equals(updatepass.emailup.getText())) {
+                Dialog.show("error", "Not confirmed !!", "cancel", "ok");
+
+            } else {
+
+                String mdp = updatepass.lastnameup.getText();
+
+                user.setMdp(mdp);
+
+                System.out.println(user);
+
+                ConnectionRequest connectionRequest = null;
+
+                connectionRequest = new ConnectionRequest() {
+                    @Override
+
+                    protected void readResponse(InputStream input) throws IOException {
+                        System.out.println(input);
+
+                    }
+
+                    @Override
+                    protected void postResponse() {
+                        ToastBar.showMessage("Changes ...", FontImage.MATERIAL_INFO);
+                        KitchenSink ks = new KitchenSink();
+                        ks.showMainUI();
+
+                    }
+
+                };
+
+                connectionRequest.setUrl("http://localhost/api-cool/web/app_dev.php/user/editpass?id=" + user.id + "&mdp=" + MD5.hash(mdp));
                 NetworkManager.getInstance().addToQueue(connectionRequest);
             }
         }
