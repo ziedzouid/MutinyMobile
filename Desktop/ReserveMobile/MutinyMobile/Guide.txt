@@ -1,0 +1,9 @@
+Cette template inclut plusieurs parties (events, rides, evaluation...)
+
+chaque partie est relative à une classe java 
+
+les classe input, input1,input2,input3 et contacts apparatiennent
+à ma propre taches 
+
+Donc vous pouvez utilser les autres et les reformer selon votre
+taches 
